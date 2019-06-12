@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Velocity Fiber - USAC Query Tool</title>
+  <style type="text/css">
+    button,
+    div,
+    form,
+    input {
+      margin: 10px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <script type="text/javascript" src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/g/filesaver.js"></script>
+
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="jumbotron">
+      <h1>Velocity Fiber - USAC Query Tool</h1>
+      <hr>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-default">
+
+          <!-- Funding Year -->
+          <div class="panel-heading">
+            <h3 class="panel-title"><strong>Funding Year</strong></h3>
+          </div>
+          <div class="panel-body">
+            <input type="text" id="funding-year" class="form-control" >
+          </div>  
+            <br>
+
+          <!-- Billed Entity Name -->
+          <!-- <div class="panel-heading">
+            <h3 class="panel-title"><strong>Billed Entity Name</strong></h3>
+          </div>
+          <div class="panel-body">
+            <input type="text" id="billed-entity-name" class="form-control" >
+          </div>  
+            <br> -->
+
+          <!-- Create Spreadsheet -->
+          <div class="panel-heading">
+            <h3 class="panel-title"><strong>Spreadsheet</strong></h3>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="spreadsheetCheck">
+            <label class="form-check-label" for="spreadsheetCheck">Check to Create Spreadsheet</label>
+          </div>
+            <br>
+
+
+          <!-- Applicant Attributes -->
+          <div class="panel-heading">
+            <h3 class="panel-title"><strong>Applicant Attributes - Check to Include</strong></h3>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="schoolCheck" checked>
+            <label class="form-check-label" for="schoolCheck">School</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="districtCheck" checked>
+            <label class="form-check-label" for="districtCheck">District</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="consortiumCheck" checked>
+            <label class="form-check-label" for="consortiumCheck">Consortium</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="k12Check" checked>
+            <label class="form-check-label" for="k12Check">K-12</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="libraryCheck">
+            <label class="form-check-label" for="libraryCheck">Library</label>
+          </div>
+
+          <div class="text-right">
+            <button type="submit" class="btn btn-primary btn-md" id="search-btn"><span class="fa fa-search"></span> Conduct Search & Output </button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- <p>The .table class adds basic styling (light padding and only horizontal dividers) to a table:</p> -->
+      <table class="table table-bordered table-responsive">
+        <thead>
+          <tr>
+            <th scope="col">471 App. No.</th>
+            <th scope="col">Organization Name</th>
+            <th scope="col">Billed Entity Number</th>
+            <th scope="col">Application Type</th>
+            <th scope="col">App. Street Address 1</th>
+            <th scope="col">App. Street Address 2</th>
+            <th scope="col">App. Street City</th>
+            <th scope="col">App. Street State</th>
+            <th scope="col">App. Street Zip</th>
+            <th scope="col">Certified Date/Time</th>
+            <th scope="col">Funding Year</th>
+            <th scope="col">Chosen Category of Service</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Insert rows here -->
+        </tbody>
+      </table>
+    </div>
+      
+    <script type="text/javascript">
+
+      var fundingYear = "";
+      var billedEntityName = "";
+      var applicant_type = "";
+
+      var schoolCheck = false;
+      var districtCheck = false;
+      var consortiumCheck = false;
+      var k12Check = false;
+      var libraryCheck = false;
+
+      // var dataOne = [];
+
+      function checkSettings(){
+        if ($("#schoolCheck").prop("checked")){
+          schoolCheck = true;
+        }
+
+        if ($("#districtCheck").prop("checked")){
+          districtCheck = true;
+        }
+        
+        if ($("#consortiumCheck").prop("checked")){
+          consortiumCheck = true;
+        }
+        
+        if ($("#k12Check").prop("checked")){
+          k12Check = true;
+        }
+
+        if ($("#libraryCheck").prop("checked")){
+          libraryCheck = true;
+        }
+
+
+      }
+
+      var xlsRows = [["470 App. No.", "Applicant Name", "Billed Entity Number", "Application Type", "App. Street Address 1", "App. Street Address 2", "App. Street City", "App. Street State", "App. Street Zip"]];
+
+      // usacSearchTwo function to grab data from USAC Dataset 3
+      function usacSearchTwo(fundingYear, billedEntityName) {
+
+        // var queryURL = "https://opendata.usac.org/resource/jp7a-89nd.json?contact_state=KS&funding_year=2018";
+        var queryURL = "https://opendata.usac.org/resource/9s6i-myen.json?";
+
+        // var fundingYear = "funding_year=2019";
+
+        $.ajax({
+          // url: queryURL + fundingYear + billedEntityName,
+          url: queryURL + fundingYear,
+          type: "GET",
+          data: {
+            "$limit" : 50,
+            "$$app_token" : "GTLTjpiTWvdsB8cIMPXNzlm65"
+          }
+        }).done(function(data) {
+          alert("Retrieved " + data.length + " records from the dataset!");
+          console.log(queryURL + fundingYear + "&" + billedEntityName);
+          console.log("Raw data: ");
+          console.log(data);
+
+          var tbody = $("tbody");
+          var row = "";
+          var td01 = "";
+          var td02 = "";
+          var td03 = "";
+          var td04 = "";
+          var td05 = "";
+          var td06 = "";
+          var td07 = "";
+          var td08 = "";
+          var td09 = "";
+          var td10 = "";
+          var td11 = "";
+          var td12 = "";
+
+          var d01 = "";
+          var d02 = "";
+          var d03 = "";
+          var d04 = "";
+          var d05 = "";
+          var d06 = "";
+          var d07 = "";
+          var d08 = "";
+          var d09 = "";
+          var d10 = "";
+          var d11 = "";
+          var d12 = "";
+
+          var states = ["AK", "AR", "AZ", "CO", "CA", "HI", "IL", "IN", "KS", "MO", "MT", "NV", "OH", "OK", "TX", "WI", "WY"];
+          var remove = "";
+
+          // for loop to append rows of data
+          for (var i = 0; i < data.length; i++) {
+            td01 = $("<td>").text(data[i].application_number);
+            td02 = $("<td>").text(data[i].organization_name);
+            td03 = $("<td>").text(data[i].epc_organization_id);
+            td04 = $("<td>").text(data[i].organization_entity_type_name);
+            td05 = $("<td>").text(data[i].org_address1);
+            td06 = $("<td>").text(data[i].org_address2);
+            td07 = $("<td>").text(data[i].org_city);
+            td08 = $("<td>").text(data[i].org_state);
+            td09 = $("<td>").text(data[i].org_zipcode);
+            td10 = $("<td>").text(data[i].certified_datetime);
+            td11 = $("<td>").text(data[i].funding_year);
+            td12 = $("<td>").text(data[i].chosen_category_of_service);
+
+            d01 = data[i].application_number;
+            d02 = data[i].organization_name;
+            d03 = data[i].epc_organization_id;
+            d04 = data[i].organization_entity_type_name;
+            d05 = data[i].org_address1;
+            d06 = data[i].org_address2;
+            d07 = data[i].org_city;
+            d08 = data[i].org_state;
+            d09 = data[i].org_zipcode;
+            d10 = data[i].certified_datetime;
+            d11 = data[i].funding_year;
+            d12 = data[i].chosen_category_of_service;
+
+            row = $("<tr>");
+
+            applicant_type = $.trim(data[i].organization_entity_type_name);
+
+            applicant_type = applicant_type.replace(/\s+/g, "").toLowerCase();
+
+
+            console.log("applicant_type: " + applicant_type);
+            remove = false;
+
+            // --------------------------------
+            // Filter States: for loop to filter out a row of data with a state not available
+            // --------------------------------
+            for (j = 0; j < states.length; j++) {
+              if (data[i].org_state===states[j]){
+                remove = true;
+                console.log("Removed State Row");
+              }
+            }
+            // --------------------------------
+
+
+            // --------------------------------
+            // Filter Out Unchecked Applicant Attributes (School, District, Consortium, K-12, Libraries)
+            // --------------------------------
+
+            // -- this works for manually filtering a row with applicant_type of Library
+            // remove = applicant_type.startsWith("Library");
+
+            if (!schoolCheck && applicant_type.endsWith("school")){
+              remove = applicant_type.endsWith("school");
+              console.log("Removed School Row");
+            }
+
+            if (!districtCheck && applicant_type.endsWith("district")){
+              remove = applicant_type.endsWith("district");
+              console.log("Removed District Row");
+            }
+
+            if (!consortiumCheck && applicant_type.startsWith("consortium")){
+              remove = applicant_type.startsWith("consortium");
+              console.log("Removed Consortium Row");
+            }
+
+            if (!k12Check && applicant_type.startsWith("k-12")){
+              remove = applicant_type.startsWith("k-12");
+              console.log("Removed K-12 Row");
+            }
+
+            if (!libraryCheck && applicant_type.startsWith("library")){
+              remove = applicant_type.startsWith("library");
+              console.log("Removed Library Row");
+            }
+
+            // --------------------------------
+
+
+ 
+            // --------------------------------
+            // Filter Billed Entity Name: for loop to filter out a row of data that does not include term in BEN
+            // --------------------------------
+            if (data[i].organization_name===billedEntityName){
+              remove = true;
+            }
+            // --------------------------------
+
+            if (remove){
+              // console.log("removed row");
+            } else {
+              tbody.append(row);
+              row.append(td01);
+              row.append(td02);
+              row.append(td03);
+              row.append(td04);
+              row.append(td05);
+              row.append(td06);
+              row.append(td07);
+              row.append(td08);
+              row.append(td09);
+              row.append(td10);
+              row.append(td11);
+              row.append(td12);
+
+              xlsRows.push([d01, d02, d03, d04, d05, d06, d07, d08, d09, d10, d11, d12]);
+            }
+
+          }
+
+          console.log("xlsRows: ");
+          console.log(xlsRows);
+
+
+          // ----------------
+          // export data in tbody to xlsx file
+          // ----------------
+
+          if ($("#spreadsheetCheck").prop("checked")){
+
+            // make the worksheet
+            var ws = XLSX.utils.json_to_sheet(xlsRows);
+
+            // add to the workbook
+            var wb = XLSX.utils.book_new();;
+            XLSX.utils.book_append_sheet(wb, ws, "Data");
+
+            /* write workbook (use type 'binary') */
+            var wbout = XLSX.write(wb, {bookType:'xlsx', type:'binary'});
+
+            /* generate a download */
+            function s2ab(s) {
+              var buf = new ArrayBuffer(s.length);
+              var view = new Uint8Array(buf);
+              for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+              return buf;
+            }
+
+            saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), "sheetjs.xlsx");
+
+          }
+
+          // ----------------
+
+        });
+
+      }
+
+      $("#search-btn").on("click", function() {
+        fundingYear = $("#funding-year").val().trim();
+        // billedEntityName = $("#billed-entity-name").val().trim();
+
+        // Using a RegEx Pattern to remove spaces from searchedCharacter
+        // You can read more about RegEx Patterns later https://www.regexbuddy.com/regex.html
+        fundingYear = fundingYear.replace(/\s+/g, "").toLowerCase();
+        // billedEntityName = billedEntityName.replace(/\s+/g, "").toLowerCase();
+
+        fundingYear = "funding_year=" + fundingYear;
+        // billedEntityName = "billed_entity_name=" + billedEntityName;
+        console.log(fundingYear);
+        console.log(billedEntityName);
+
+        checkSettings();
+        usacSearchTwo(fundingYear, billedEntityName);
+
+      });
+
+
+      // function usacSearchOne() {
+
+      //   // var queryURL = "https://opendata.usac.org/resource/jp7a-89nd.json?contact_state=KS&funding_year=2018";
+      //   var queryURL = "https://opendata.usac.org/resource/jp7a-89nd.json?";
+
+      //   var fundingYear = "funding_year=2019";
+
+      //   $.ajax({
+      //     url: queryURL + fundingYear,
+      //     type: "GET",
+      //     data: {
+      //       "$limit" : 100,
+      //       "$$app_token" : "GTLTjpiTWvdsB8cIMPXNzlm65"
+      //     }
+      //   }).done(function(data) {
+      //     alert("Retrieved " + data.length + " records from the dataset!");
+      //     console.log(data);
+
+      //     var tbody = $("tbody");
+      //     var row = "";
+      //     var td01 = "";
+      //     var td02 = "";
+      //     var td03 = "";
+      //     var td04 = "";
+      //     var td05 = "";
+      //     var td06 = "";
+      //     var td07 = "";
+      //     var td08 = "";
+      //     var td09 = "";
+      //     var td10 = "";
+      //     var td11 = "";
+      //     var td12 = "";
+      //     var td13 = "";
+      //     var td14 = "";
+      //     var td15 = "";
+      //     var td16 = "";
+      //     var td17 = "";
+      //     var td18 = "";
+      //     var td19 = "";
+      //     var td20 = "";
+      //     var td21 = "";
+      //     var td22 = "";
+      //     var td23 = "";
+      //     var td24 = "";
+      //     var td25 = "";
+      //     var td26 = "";
+      //     var td27 = "";
+      //     var td28 = "";
+      //     var td29 = "";
+      //     var td30 = "";
+      //     var td31 = "";
+      //     var td32 = "";
+      //     var td33 = "";
+      //     var td34 = "";
+      //     var td35 = "";
+      //     var td36 = "";
+      //     var td37 = "";
+      //     var td38 = "";
+      //     var td39 = "";
+      //     var td40 = "";
+      //     var td41 = "";
+      //     var td42 = "";
+      //     var td43 = "";
+      //     var td44 = "";
+      //     var td45 = "";
+      //     var td46 = "";
+      //     var td47 = "";
+      //     var td48 = "";
+      //     var td49 = "";
+      //     var td50 = "";
+      //     var td51 = "";
+
+      //     var states = ["AK", "AR", "AZ", "CO", "CA", "HI", "IL", "IN", "KS", "MO", "MT", "NV", "OH", "OK", "TX", "WI", "WY"];
+      //     var remove = "";
+
+      //     // for loop to append rows of data
+      //     for (var i = 0; i < data.length; i++) {
+      //       td01 = $("<td>").text(data[i].application_number);
+      //       td02 = $("<td>").text(data[i].billed_entity_name);
+      //       td03 = $("<td>").text(data[i].ben);
+      //       td04 = $("<td>").text(data[i].applicant_type);
+      //       td05 = $("<td>").text(data[i].billed_entity_address1);
+      //       td06 = $("<td>").text(data[i].billed_entity_address2);
+      //       td07 = $("<td>").text(data[i].billed_entity_city);
+      //       td08 = $("<td>").text(data[i].billed_entity_state);
+      //       td09 = $("<td>").text(data[i].billed_entity_zip);
+      //       td10 = $("<td>").text(data[i].allowable_contract_date);
+      //         td11 = $("<td>").text(data[i].funding_year);
+      //       td12 = $("<td>").text(data[i].contract_exp_date);
+      //       td13 = $("<td>").text(data[i].category_one_description);
+      //       td14 = $("<td>").text(data[i].category_one_description);
+      //       td15 = $("<td>").text(data[i].billed_entity_address1);
+      //       td16 = $("<td>").text(data[i].billed_entity_address2);
+      //       td17 = $("<td>").text(data[i].billed_entity_city);
+      //       td18 = $("<td>").text(data[i].billed_entity_state);
+      //       td19 = $("<td>").text(data[i].billed_entity_zip);
+      //       td20 = $("<td>").text(data[i].allowable_contract_date);
+      //         td21 = $("<td>").text(data[i].application_number);
+      //       td22 = $("<td>").text(data[i].billed_entity_name);
+      //       td23 = $("<td>").text(data[i].ben);
+      //       td24 = $("<td>").text(data[i].applicant_type);
+      //       td25 = $("<td>").text(data[i].billed_entity_address1);
+      //       td26 = $("<td>").text(data[i].billed_entity_address2);
+      //       td27 = $("<td>").text(data[i].billed_entity_city);
+      //       td28 = $("<td>").text(data[i].billed_entity_state);
+      //       td29 = $("<td>").text(data[i].billed_entity_zip);
+      //       td30 = $("<td>").text(data[i].allowable_contract_date);
+      //         td31 = $("<td>").text(data[i].application_number);
+      //       td32 = $("<td>").text(data[i].billed_entity_name);
+      //       td33 = $("<td>").text(data[i].ben);
+      //       td34 = $("<td>").text(data[i].applicant_type);
+      //       td35 = $("<td>").text(data[i].billed_entity_address1);
+      //       td36 = $("<td>").text(data[i].billed_entity_address2);
+      //       td37 = $("<td>").text(data[i].billed_entity_city);
+      //       td38 = $("<td>").text(data[i].billed_entity_state);
+      //       td39 = $("<td>").text(data[i].billed_entity_zip);
+      //       td30 = $("<td>").text(data[i].allowable_contract_date);
+      //         td41 = $("<td>").text(data[i].application_number);
+      //       td42 = $("<td>").text(data[i].billed_entity_name);
+      //       td43 = $("<td>").text(data[i].ben);
+      //       td44 = $("<td>").text(data[i].applicant_type);
+      //       td45 = $("<td>").text(data[i].billed_entity_address1);
+      //       td46 = $("<td>").text(data[i].billed_entity_address2);
+      //       td47 = $("<td>").text(data[i].billed_entity_city);
+      //       td48 = $("<td>").text(data[i].billed_entity_state);
+      //       td49 = $("<td>").text(data[i].billed_entity_zip);
+      //       td50 = $("<td>").text(data[i].allowable_contract_date);
+      //         td51 = $("<td>").text(data[i].application_number);
+
+      //       row = $("<tr>");
+
+      //       var applicant_type = $.trim(data[i].applicant_type);
+
+      //       console.log(applicant_type);
+      //       remove = false;
+
+      //       // --------------------------------
+      //       // for loop to filter out a row of data with a state not available
+      //       // --------------------------------
+      //       for (j = 0; j < states.length; j++) {
+      //         if (data[i].billed_entity_state===states[j]){
+      //           remove = true;
+      //         }
+      //       }
+      //       // --------------------------------
+
+      //       // --------------------------------
+      //       // if statement to filter out a row of data with applicant type of "library"
+      //       // --------------------------------
+      //       // if (applicant_type==="Library"){
+      //       //   remove = true;
+      //       // }
+      //       remove = applicant_type.startsWith("Library");
+      //       // --------------------------------
+
+
+      //       if (remove){
+      //         console.log("removed row");
+      //       } else {
+      //         tbody.append(row);
+      //         row.append(td01);
+      //         row.append(td02);
+      //         row.append(td03);
+      //         row.append(td04);
+      //         row.append(td05);
+      //         row.append(td06);
+      //         row.append(td07);
+      //         row.append(td08);
+      //         row.append(td09);
+      //         row.append(td10);
+      //         row.append(td11);
+      //         row.append(td12);
+      //         row.append(td13);
+      //         row.append(td14);
+      //         row.append(td15);
+      //         row.append(td16);
+      //         row.append(td17);
+      //         row.append(td18);
+      //         row.append(td19);
+      //         row.append(td20);
+      //         row.append(td21);
+      //         row.append(td22);
+      //         row.append(td23);
+      //         row.append(td24);
+      //         row.append(td25);
+      //         row.append(td26);
+      //         row.append(td27);
+      //         row.append(td28);
+      //         row.append(td29);
+      //         row.append(td30);
+      //         row.append(td31);
+      //         row.append(td32);
+      //         row.append(td33);
+      //         row.append(td34);
+      //         row.append(td35);
+      //         row.append(td36);
+      //         row.append(td37);
+      //         row.append(td38);
+      //         row.append(td39);
+      //         row.append(td40);
+      //         row.append(td41);
+      //         row.append(td42);
+      //         row.append(td43);
+      //         row.append(td44);
+      //         row.append(td45);
+      //         row.append(td46);
+      //         row.append(td47);
+      //         row.append(td48);
+      //         row.append(td49);
+      //         row.append(td50);
+      //         row.append(td51);
+      //       }
+
+      //     }
+
+      //     // usacData = data;
+
+      //   });
+
+      //   }
+
+
+    </script>
+  </div>
+</body>
+
+</html>
