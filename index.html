@@ -110,6 +110,7 @@
             <th scope="col">Certified Date/Time</th>
             <th scope="col">Funding Year</th>
             <th scope="col">Chosen Category of Service</th>
+            <th scope="col">471 Form Link</th>
           </tr>
         </thead>
         <tbody>
@@ -194,6 +195,7 @@
           var td10 = "";
           var td11 = "";
           var td12 = "";
+          var td13 = "";
 
           var d01 = "";
           var d02 = "";
@@ -207,13 +209,15 @@
           var d10 = "";
           var d11 = "";
           var d12 = "";
+          var d13 = "";
 
           var states = ["AK", "AR", "AZ", "CO", "CA", "HI", "IL", "IN", "KS", "MO", "MT", "NV", "OH", "OK", "TX", "WI", "WY"];
           var remove = "";
 
           // for loop to append rows of data
           for (var i = 0; i < data.length; i++) {
-            td01 = $("<td>").text(data[i].application_number);
+            // td01 = $("<td>").text(data[i].application_number);
+            td01 = $("<td>").html('<a href="' + data[i].file_url + '">' + data[i].application_number + '</a>')
             td02 = $("<td>").text(data[i].organization_name);
             td03 = $("<td>").text(data[i].epc_organization_id);
             td04 = $("<td>").text(data[i].organization_entity_type_name);
@@ -225,6 +229,8 @@
             td10 = $("<td>").text(data[i].certified_datetime);
             td11 = $("<td>").text(data[i].funding_year);
             td12 = $("<td>").text(data[i].chosen_category_of_service);
+            // td13 = $("<td>").text(data[i].file_url);
+            td13 = $("<td>").html('<a href="' + data[i].file_url + '">Link</a>');
 
             d01 = data[i].application_number;
             d02 = data[i].organization_name;
@@ -238,6 +244,8 @@
             d10 = data[i].certified_datetime;
             d11 = data[i].funding_year;
             d12 = data[i].chosen_category_of_service;
+            d13 = data[i].file_url;
+            // d13 = '<a href="' + data[i].file_url + '">Link</a>';
 
             row = $("<tr>");
 
@@ -321,8 +329,9 @@
               row.append(td10);
               row.append(td11);
               row.append(td12);
+              row.append(td13);
 
-              xlsRows.push([d01, d02, d03, d04, d05, d06, d07, d08, d09, d10, d11, d12]);
+              xlsRows.push([d01, d02, d03, d04, d05, d06, d07, d08, d09, d10, d11, d12, d13]);
             }
 
           }
