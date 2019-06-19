@@ -162,8 +162,8 @@
       // usacSearchTwo function to grab data from USAC Dataset 3
       function usacSearchTwo(fundingYear, billedEntityName) {
 
-        // var queryURL = "https://opendata.usac.org/resource/jp7a-89nd.json?contact_state=KS&funding_year=2018";
-        var queryURL = "https://opendata.usac.org/resource/9s6i-myen.json?";
+        var queryURL = "https://opendata.usac.org/resource/9s6i-myen.json?org_state=ND&";
+        // var queryURL = "https://opendata.usac.org/resource/9s6i-myen.json?";
 
         // var fundingYear = "funding_year=2019";
 
@@ -172,12 +172,12 @@
           url: queryURL + fundingYear,
           type: "GET",
           data: {
-            "$limit" : 50,
+            "$limit" : 200,
             "$$app_token" : "GTLTjpiTWvdsB8cIMPXNzlm65"
           }
         }).done(function(data) {
           alert("Retrieved " + data.length + " records from the dataset!");
-          console.log(queryURL + fundingYear + "&" + billedEntityName);
+          console.log(queryURL + fundingYear);
           console.log("Raw data: ");
           console.log(data);
 
